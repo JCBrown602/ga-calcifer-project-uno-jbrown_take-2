@@ -8,6 +8,7 @@ const suits = ['Clubs','Diamonds','Hearts','Spades'];
 const faceNames =
     ['Ace','2','3','4','5','6','7','8','9','10','Jack','Queen','King'];
 const faceValues = [];
+const faceCards = [];
 
 const finalCheck = [];      // Add the Community Pile to each player hand and store in array
 
@@ -27,6 +28,12 @@ faceNames.forEach((faceName, idx) => {
         newCard.suit = suit;
         deck.push(newCard);
     });
+});
+// Make all the face cards have a value of 10
+deck.forEach((card) => {
+    if (card.faceValue > 10) {
+        card.faceValue = 10; 
+    }
 });
 
 // Players: Player, Computer1, Computer2, etc.
@@ -55,9 +62,7 @@ function init() {
     console.log("Init...");
 
     // Make sure players have zero cards
-    players.forEach((player) => {
-        player.hand = [];
-    })
+    player.hand = [];
     console.log("The starting deck:");
     console.log(deck.slice(0,5));
 
@@ -70,7 +75,7 @@ function init() {
 
     // Deal cards (first two)
     console.log(`Cards remaining in deck: ${deck.length}`);
-    dealCards(players);
+    dealCards(player);
 
     checkHands();
 
@@ -90,15 +95,17 @@ function shuffle(){
     return deck;
 }
 // Deal cards
-function dealCards(players) {
+function dealCards(player) {
     console.log("Dealing...");
-    for(let i = 0; i < players.length; i++) {
-        let cardToDeal = deck.pop();
-        players[i].hand.push(cardToDeal);
-    }
-    //console.log(players);
-    return players;
+    let cardToDeal = deck.pop();
+    player.hand.push(cardToDeal);
+    player.score += cardToDeal.faceValue;
+    console.log(`\tPLAYER: ${player.name}, SCORE: ${player.score}`);
+    console.log(player.hand);
+    return player;
 }
+
+// Betting
 
 // Ace 1 or 10
 // Find the four aces and change their faceValue from 1 to 10
@@ -111,64 +118,10 @@ function aceToggle() {
     }
 }
 
-// Betting
-
 //======================= Win Condition =========================
 // Win Condition / Scorekeeper
-function buildFinalHand() {
-    players.forEach((player) => {
-        console.log("++++");
-        communityPile[0].hand.forEach((card) => {
-            player.hand.push(card);
-        });
-        console.log(player.hand);
-    });
-    console.log("++++");
-}
-
-function checkSequential() {
-    players.forEach((player) => {
-        player.numSeq = countSequentialCards(player.hand);
-        console.log("--------");
-        console.log(`Player: ${player.name} has 
-            ${player.numSeq} sequential cards.`);
-
-        const suitsAre = checkSuits(player.hand);
-        console.log("All sequential: " + suitsAre);
-    });
-}
-
-function countSequentialCards(playerHand) {
-    let sequentialCount = 0;
-    
-    // Sort the cards by value in ascending order
-    playerHand.sort((a, b) => a.faceValue - b.faceValue);
-    
-    for (let i = 0; i < playerHand.length - 1; i++) {
-        // Check if the next card's value is one more than the current card's value
-        if (playerHand[i + 1].faceValue - playerHand[i].faceValue === 1) {
-        sequentialCount++;
-        }
-    }
-    return sequentialCount;
-}
-
-function checkSuits(playerHand) {
-    let sameSuitsArr = [];
-    playerHand.forEach((card) => { sameSuitsArr.push(card.suit)});
-    let sameSuits = sameSuitsArr.every(myFunction);
-    function myFunction(value) {
-        console.log(`suit: ${value}, playerHand.suit: ${sameSuitsArr[0]}`);
-        return JSON.stringify(value) === JSON.stringify(sameSuitsArr[0]);
-    }
-    console.log(`Same suits: ${sameSuits}`);
-    return sameSuits;
-}
-
 function checkHands() {
     console.log("zzzzzzzzzzzzzzzzzz");
-    buildFinalHand();
-    checkSequential();
 }
 //=========================================================================
 
