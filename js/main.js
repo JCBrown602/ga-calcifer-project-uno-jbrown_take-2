@@ -36,13 +36,21 @@ deck.forEach((card) => {
     }
 });
 
-// Players: Player, Computer1, Computer2, etc.
+// Players: Player
 let player = 
     {
         "name": "Player",
         "score": 0, // By hand rank
         "money": 0,
-        "numSeq": 0, // Number of sequential cards
+        "hand": []  // What cards is this player holding
+    }
+
+// Players: Player
+let dealer = 
+    {
+        "name": "GA Casino Dealer",
+        "score": 0, // By hand rank
+        "money": 0,
         "hand": []  // What cards is this player holding
     }
 
@@ -54,7 +62,11 @@ function render() {
 }; 
 /*----- event listeners -----*/
 // TEMPORARY CONSOLE DRIVER
-
+function cd_getInput() {
+    const input = prompt(`>${player.score} - (h)it or (s)tand: `);
+    console.log("get input");
+    return input;
+}
 
 ////////////// (CONTROLLER)
 /*----- functions -----*/
@@ -63,25 +75,58 @@ function init() {
 
     // Make sure players have zero cards
     player.hand = [];
-    console.log("The starting deck:");
-    console.log(deck.slice(0,5));
 
     // Shuffle cards
-    shuffle(deck);
-    console.log("Every day I'm ");
-    shuffle(deck);
-    shuffle(deck);
-    console.log(deck.slice(0,5));
-
-    // Deal cards (first two)
-    console.log(`Cards remaining in deck: ${deck.length}`);
-    dealCards(player);
-
-    checkHands();
+    for(let i = 0; i < 3; i++) { shuffle(deck) }; 
+    
+    firstDeal();
+    playerLoop();
 
 };
 
-// Dealer?
+/////////// DEALER: https://bicyclecards.com/how-to-play/blackjack/
+// Deal a card to the player, then one to the dealer - face up
+// Deal a card to the player, one to the dealer - face up, face down, respectively
+function firstDeal() {
+    for(let i = 0; i < 2; i++) { dealCards(player); dealCards(dealer); }
+    
+    // If a player is dealt a 'natural', they win and are paid 1.5x their bet
+
+    // Dealer's faceup card must be 10 or Ace for the dealer to look at face down card
+    // to see if it's a natural
+    // If dealer has a natural, they collect all bets of players who do not have naturals
+    // If dealer and player tie, both have naturals, it's a standoff and player gets their bet
+    // back.
+}
+
+// Player 'hits' or 'stands'. Dealer deals cards until player gets 21, stand, or bust.
+// Then deal next player - in this case the dealer themselves.
+function playerLoop() {
+    console.log("calling getPlayerInput() in playerLoop()")
+    getPlayerInput();
+}
+
+// Hit, Stand, or Bust
+// Calls whatever mechanism (console, html, etc) is used to get player input and then uses 
+// that input to determine next action
+function getPlayerInput() {
+    const input = cd_getInput();
+    if (input === "h") {
+        console.log("HIT!");
+        dealCards(player);
+        checkHand(player);
+    } else if(input === "s") { 
+        console.log(`${player.name} stands at ${player.score}`);
+        return;
+    }
+}
+
+// Dealer: face down is turned up. 17 or more, must stand. Less than 17 must hit until
+// 17 or more and then must stand.
+
+// If dealer busts, and player stands, the player is paid the amount of their bet.
+// If the dealer stands after 17 and before 21, the dealer pays the bet of the player
+// having a higher total and takes the bet of a player with a lower total.
 
 // Shuffle deck
 function shuffle(){
@@ -96,13 +141,22 @@ function shuffle(){
 }
 // Deal cards
 function dealCards(player) {
-    console.log("Dealing...");
+    console.log(`Dealing to ${player.name}`);
     let cardToDeal = deck.pop();
     player.hand.push(cardToDeal);
     player.score += cardToDeal.faceValue;
-    console.log(`\tPLAYER: ${player.name}, SCORE: ${player.score}`);
-    console.log(player.hand);
     return player;
+}
+
+// Check hand
+function checkHand(player) {
+    if (player.score > 21 ) {
+        console.log(`${player.score}... ${player.name} loses.`);
+    } else if (player.score === 21 ) {
+        console.log(`${player.score}! ${player.name} WINS!`);
+    } else {
+        getPlayerInput();
+    }
 }
 
 // Betting
