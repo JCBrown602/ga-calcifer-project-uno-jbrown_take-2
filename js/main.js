@@ -55,10 +55,35 @@ let dealer =
     }
 
 /*----- cached element references -----*/
+const playerCardSection = document.getElementById("player");
+const playerH2 = document.getElementById("playerH2");
 
 ////////////// (VIEW) All DOM action takes place here
 function render() {
     console.log("Render...");
+    if(player.hand) {
+        console.log(`player.hand --> ${JSON.stringify(player.hand[0].faceName)}`);
+    } else {
+        console.log('nope');
+    }
+    
+    // Clean slate 
+    while (playerCardSection.hasChildNodes()) {
+        playerCardSection.removeChild(playerCardSection.firstChild);
+      }
+
+    player.hand.forEach((card) => {
+        const node = document.createElement("div");
+        const textnode = document.createTextNode(card.faceName);
+        node.appendChild(textnode);
+        node.classList.add("card");
+        playerCardSection.appendChild(node);
+    });
+
+    playerH2.innerHTML = `PLAYER - ${player.score}`;
+
+    // document.getElementById("playerCard1").innerHTML = player.hand[0].faceName;
+    // document.getElementById("dealerCard1").innerHTML = dealer.hand[0].faceName;
 }; 
 /*----- event listeners -----*/
 // TEMPORARY CONSOLE DRIVER
@@ -97,6 +122,7 @@ function firstDeal() {
     // If dealer has a natural, they collect all bets of players who do not have naturals
     // If dealer and player tie, both have naturals, it's a standoff and player gets their bet
     // back.
+    render();
 }
 
 // Player 'hits' or 'stands'. Dealer deals cards until player gets 21, stand, or bust.
@@ -115,6 +141,7 @@ function getPlayerInput() {
         console.log("HIT!");
         dealCards(player);
         checkHand(player);
+        render();
     } else if(input === "s") { 
         console.log(`${player.name} stands at ${player.score}`);
         return;
