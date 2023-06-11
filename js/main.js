@@ -45,7 +45,8 @@ let player =
         "name": "Player",
         "score": 0, // By hand rank
         "money": 0,
-        "hand": []  // What cards is this player holding
+        "hand": [],  // What cards is this player holding
+        "choice": ""
     }
 
 // Players: Player
@@ -63,6 +64,14 @@ const playerCardSection = document.getElementById("player");
 const playerH2 = document.getElementById("playerH2");
 const dealerCardSection = document.getElementById("dealer");
 const dealerH2 = document.getElementById("dealerH2");
+
+const userActions = document.getElementById("userActions");
+const buttons = document.querySelectorAll('button');
+
+const hitBtn = document.getElementById("hit");
+const standBtn = document.getElementById("stand");
+const newDealBtn = document.getElementById("newDeal");
+const quitBtn = document.getElementById("quit");
 
 ////////////// (VIEW) All DOM action takes place here
 function render(message) {
@@ -100,12 +109,19 @@ function render(message) {
     // document.getElementById("dealerCard1").innerHTML = dealer.hand[0].faceName;
 }; 
 /*----- event listeners -----*/
+//userActions.addEventListener("click", getPlayerInput(userActions.id));
+//buttons.addEventListener("click", getPlayerInput());
+hitBtn.addEventListener("click", getPlayerInput(hitBtn.id));
+standBtn.addEventListener("click", getPlayerInput("stand"));
+newDealBtn.addEventListener("click", getPlayerInput("newDeal"));
+quitBtn.addEventListener("click", getPlayerInput("quit"));
+
 // TEMPORARY CONSOLE DRIVER
-function cd_getInput() {
-    const input = prompt(`> Current Score: ${player.score} - (h)it or (s)tand: `);
-    console.log("get input");
-    return input;
-}
+// function cd_getInput() {
+//     const input = prompt(`> Current Score: ${player.score} - (h)it or (s)tand: `);
+//     console.log("get input");
+//     return input;
+// }
 
 ////////////// (CONTROLLER)
 /*----- functions -----*/
@@ -143,24 +159,28 @@ function firstDeal() {
 // Then deal next player - in this case the dealer themselves.
 function playerLoop() {
     console.log("calling getPlayerInput() in playerLoop()")
-    getPlayerInput();
+    while(player.choice !== "quit") {
+        getPlayerInput();
+    }
 }
 
 // Hit, Stand, or Bust
 // Calls whatever mechanism (console, html, etc) is used to get player input and then uses 
 // that input to determine next action
-function getPlayerInput() {
-    const input = cd_getInput();
-    if (input === "h") {
+function getPlayerInput(input) {
+    console.log("Getting player input...");
+    console.log(`Input: ${input}`);
+    if (input === "hit") {
         console.log("HIT!");
         dealCards(player);
         checkHand(player);
-    } else if(input === "s") { 
+    } else if(input === "stand") { 
         console.log(`${player.name} stands at ${player.score}`);
         // DEBUG: dealer needs to deal rest of their cards
         checkHand(player);
         return;
     }
+    return input;
 }
 
 // Dealer: face down is turned up. 17 or more, must stand. Less than 17 must hit until
