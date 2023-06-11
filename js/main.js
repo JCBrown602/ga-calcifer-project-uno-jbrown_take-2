@@ -36,6 +36,9 @@ deck.forEach((card) => {
     }
 });
 
+// Win/Lose Message
+let message = "";
+
 // Players: Player
 let player = 
     {
@@ -55,22 +58,25 @@ let dealer =
     }
 
 /*----- cached element references -----*/
+const messageH2 = document.getElementById("message");
 const playerCardSection = document.getElementById("player");
 const playerH2 = document.getElementById("playerH2");
+const dealerCardSection = document.getElementById("dealer");
+const dealerH2 = document.getElementById("dealerH2");
 
 ////////////// (VIEW) All DOM action takes place here
-function render() {
+function render(message) {
     console.log("Render...");
-    if(player.hand) {
-        console.log(`player.hand --> ${JSON.stringify(player.hand[0].faceName)}`);
-    } else {
-        console.log('nope');
-    }
-    
+    console.log(message);
+    messageH2.innerHTML = message;
+        
     // Clean slate 
     while (playerCardSection.hasChildNodes()) {
         playerCardSection.removeChild(playerCardSection.firstChild);
       }
+    while (dealerCardSection.hasChildNodes()) {
+        dealerCardSection.removeChild(dealerCardSection.firstChild);
+    }
 
     player.hand.forEach((card) => {
         const node = document.createElement("div");
@@ -79,8 +85,16 @@ function render() {
         node.classList.add("card");
         playerCardSection.appendChild(node);
     });
+    playerH2.innerHTML = `PLAYER SCORE: ${player.score}`;
 
-    playerH2.innerHTML = `PLAYER - ${player.score}`;
+    dealer.hand.forEach((card) => {
+        const node = document.createElement("div");
+        const textnode = document.createTextNode(card.faceName);
+        node.appendChild(textnode);
+        node.classList.add("card");
+        dealerCardSection.appendChild(node);
+    });
+    dealerH2.innerHTML = `DEALER SCORE: ${dealer.score}`;
 
     // document.getElementById("playerCard1").innerHTML = player.hand[0].faceName;
     // document.getElementById("dealerCard1").innerHTML = dealer.hand[0].faceName;
@@ -88,7 +102,7 @@ function render() {
 /*----- event listeners -----*/
 // TEMPORARY CONSOLE DRIVER
 function cd_getInput() {
-    const input = prompt(`>${player.score} - (h)it or (s)tand: `);
+    const input = prompt(`> Current Score: ${player.score} - (h)it or (s)tand: `);
     console.log("get input");
     return input;
 }
@@ -141,9 +155,10 @@ function getPlayerInput() {
         console.log("HIT!");
         dealCards(player);
         checkHand(player);
-        render();
     } else if(input === "s") { 
         console.log(`${player.name} stands at ${player.score}`);
+        // DEBUG: dealer needs to deal rest of their cards
+        checkHand(player);
         return;
     }
 }
@@ -178,12 +193,13 @@ function dealCards(player) {
 // Check hand
 function checkHand(player) {
     if (player.score > 21 ) {
-        console.log(`${player.score}... ${player.name} loses.`);
+        message = `${player.score}... ${player.name} loses.`;
     } else if (player.score === 21 ) {
-        console.log(`${player.score}! ${player.name} WINS!`);
+        message = `${player.score}! ${player.name} WINS!`;
     } else {
-        getPlayerInput();
+        message = `${player.score}... It's a tie!`;
     }
+    render(message);
 }
 
 // Betting
@@ -201,9 +217,7 @@ function aceToggle() {
 
 //======================= Win Condition =========================
 // Win Condition / Scorekeeper
-function checkHands() {
-    console.log("zzzzzzzzzzzzzzzzzz");
-}
+
 //=========================================================================
 
 
